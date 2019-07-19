@@ -9,12 +9,14 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.IdpResponse;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -29,6 +31,15 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        FloatingActionButton newTaskFab = findViewById(R.id.fab_new_task);
+        newTaskFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent newTaskIntent = new Intent(MainActivity.this, EditTaskActivity.class);
+                startActivity(newTaskIntent);
+            }
+        });
     }
 
     @Override
@@ -39,6 +50,8 @@ public class MainActivity extends AppCompatActivity {
         // null means no user is currently logged in
         if (firebaseAuth.getCurrentUser() == null) {
             navigateToLogin();
+        } else {
+            initializeUserTasks();
         }
     }
 

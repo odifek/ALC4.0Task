@@ -31,7 +31,7 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <EditText
-            android:id="@+id/edittext_task_description"
+            android:id="@+id/edittext_task_detail"
             style="@style/Style.Tasky.EditText"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
