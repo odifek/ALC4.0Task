@@ -83,6 +83,8 @@ public class EditTaskActivity extends AppCompatActivity {
             }
         }
 
+        setTitle(null);
+
     }
 
     private void populateTaskDetail(Task editTask) {

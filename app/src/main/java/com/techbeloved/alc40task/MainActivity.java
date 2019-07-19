@@ -1,8 +1,5 @@
 package com.techbeloved.alc40task;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,20 +9,35 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.IdpResponse;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.Arrays;
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 public class MainActivity extends AppCompatActivity {
 
     private static final int RC_SIGN_IN = 123;
+    private static final String TAG = "MainActivity";
+    private CollectionReference taskCollection;
+    private FirebaseUser currentUser;
+    private TasksAdapter tasksAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +52,21 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(newTaskIntent);
             }
         });
+
+        RecyclerView taskList = findViewById(R.id.recyclerview_tasks);
+
+        tasksAdapter = new TasksAdapter(new ClickListener<Task>() {
+            @Override
+            public void onClick(Task item) {
+                Intent editIntent = new Intent(MainActivity.this, EditTaskActivity.class);
+                editIntent.putExtra(EditTaskActivity.EXTRA_TASK, item);
+                startActivity(editIntent);
+            }
+        });
+        taskList.setAdapter(tasksAdapter);
+        taskList.setLayoutManager(new LinearLayoutManager(this));
+        taskList.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+        setTitle(R.string.my_tasks);
     }
 
     @Override
@@ -47,8 +74,10 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
         FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
 
+        Log.i(TAG, "onCreate: creating");
         // null means no user is currently logged in
-        if (firebaseAuth.getCurrentUser() == null) {
+        currentUser = firebaseAuth.getCurrentUser();
+        if (currentUser == null) {
             navigateToLogin();
         } else {
             initializeUserTasks();
@@ -81,7 +110,7 @@ public class MainActivity extends AppCompatActivity {
 
             if (resultCode == RESULT_OK) {
                 // Successfully signed in
-                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                currentUser = FirebaseAuth.getInstance().getCurrentUser();
                 // proceed with initialization
                 initializeUserTasks();
             } else {
@@ -99,6 +128,27 @@ public class MainActivity extends AppCompatActivity {
 
     private void initializeUserTasks() {
 
+        Log.i(TAG, "initializeUserTasks: should init firestore here");
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+        taskCollection = firestore.collection("users")
+                .document(currentUser.getUid())
+                .collection("tasks");
+
+        taskCollection.orderBy("updated", Query.Direction.DESCENDING)
+                .addSnapshotListener(this, new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException exception) {
+
+                        if (queryDocumentSnapshots != null) {
+                            List<Task> tasks = queryDocumentSnapshots.toObjects(Task.class);
+                            tasksAdapter.submitList(tasks);
+                        }
+
+                        if (exception != null) {
+                            Log.w(TAG, "onEvent: failed to get tasks", exception);
+                        }
+                    }
+                });
     }
 
     @Override
@@ -113,11 +163,7 @@ public class MainActivity extends AppCompatActivity {
         if (item.getItemId() == R.id.menu_logout) {
             AuthUI.getInstance()
                     .signOut(this)
-                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                        public void onComplete(@NonNull Task<Void> task) {
-                            finish();
-                        }
-                    });
+                    .addOnCompleteListener(task -> finish());
             return true;
         }
         return super.onOptionsItemSelected(item);

@@ -22,6 +22,11 @@
     <style name="ThemeOverlay.Tasky.ActionBar" parent="ThemeOverlay.MaterialComponents.Light">
         <item name="android:background">@android:color/white</item>
 
+        <item name="android:titleTextStyle">@style/TextAppearance.Tasky.Title.Centered</item>
+    </style>
+
+    <style name="TextAppearance.Tasky.Title.Centered" parent="TextAppearance.AppCompat.Widget.ActionBar.Title">
+        <item name="android:layout_gravity">center_horizontal</item>
     </style>
 
 </resources>
