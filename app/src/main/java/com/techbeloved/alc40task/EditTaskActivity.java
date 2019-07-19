@@ -4,12 +4,16 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -87,12 +91,6 @@ public class EditTaskActivity extends AppCompatActivity {
 
     }
 
-    private void populateTaskDetail(Task editTask) {
-        titleText.setText(editTask.getTitle());
-        detailText.setText(editTask.getDetail());
-        currentTaskId = editTask.getId();
-    }
-
     @Override
     protected void onStop() {
         super.onStop();
@@ -104,6 +102,53 @@ public class EditTaskActivity extends AppCompatActivity {
         outState.putString(SAVED_TASK_ID, currentTaskId);
         outState.putParcelable(SAVED_TASK, oldTask);
         super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.detail, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.menu_delete) {
+            deleteCurrentTask();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void deleteCurrentTask() {
+        taskCollection.document(currentTaskId).delete()
+                .addOnCompleteListener(this, new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull com.google.android.gms.tasks.Task<Void> task) {
+                        clearTaskDetails();
+                        finish();
+                        Log.i(TAG, "onComplete: Deleted");
+                    }
+                }).addOnFailureListener(this, new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.w(TAG, "onFailure: delete", e);
+            }
+        });
+    }
+
+    /**
+     * Clear task details, on preparation for deletion
+     */
+    private void clearTaskDetails() {
+        titleText.setText(null);
+        detailText.setText(null);
+    }
+
+    private void populateTaskDetail(Task editTask) {
+        titleText.setText(editTask.getTitle());
+        detailText.setText(editTask.getDetail());
+        currentTaskId = editTask.getId();
     }
 
     /**
