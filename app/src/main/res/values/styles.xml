@@ -1,11 +1,27 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="AppTheme" parent="Theme.MaterialComponents.Light">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+
+        <item name="actionBarTheme">@style/ThemeOverlay.Tasky.ActionBar</item>
+
+        <item name="android:statusBarColor">@android:color/white</item>
+
+        <item name="android:fontFamily">@font/noto_sans</item>
+
+    </style>
+
+    <style name="Style.Tasky.EditText" parent="Widget.AppCompat.EditText">
+        <item name="android:background">@android:color/transparent</item>
+    </style>
+
+    <style name="ThemeOverlay.Tasky.ActionBar" parent="ThemeOverlay.MaterialComponents.Light">
+        <item name="android:background">@android:color/white</item>
+
     </style>
 
 </resources>
