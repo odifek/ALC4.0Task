@@ -3,4 +3,5 @@
     <string name="text_add_details">Add details</string>
     <string name="text_title">Title</string>
     <string name="description_note_detail_icon">Note detail icon</string>
+    <string name="log_out">Log Out</string>
 </resources>
