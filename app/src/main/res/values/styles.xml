@@ -9,8 +9,8 @@
 
         <item name="actionBarTheme">@style/ThemeOverlay.Tasky.ActionBar</item>
 
-        <item name="android:statusBarColor">@android:color/white</item>
-
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:fontFamily">@font/noto_sans</item>
 
     </style>
