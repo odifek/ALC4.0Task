@@ -149,6 +149,12 @@ public class EditTaskActivity extends AppCompatActivity {
         titleText.setText(editTask.getTitle());
         detailText.setText(editTask.getDetail());
         currentTaskId = editTask.getId();
+
+        // Disable editing for completed task
+        if (editTask.isCompleted()) {
+            titleText.setEnabled(false);
+            detailText.setEnabled(false);
+        }
     }
 
     /**

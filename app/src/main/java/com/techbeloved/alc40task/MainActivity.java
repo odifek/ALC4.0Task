@@ -2,6 +2,9 @@ package com.techbeloved.alc40task;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.style.StrikethroughSpan;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -9,6 +12,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -16,6 +20,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.IdpResponse;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -27,6 +33,8 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import javax.annotation.Nullable;
@@ -61,6 +69,11 @@ public class MainActivity extends AppCompatActivity {
                 Intent editIntent = new Intent(MainActivity.this, EditTaskActivity.class);
                 editIntent.putExtra(EditTaskActivity.EXTRA_TASK, item);
                 startActivity(editIntent);
+            }
+
+            @Override
+            public void onCompleteToggle(Task item) {
+                updateTaskCompletionState(item);
             }
         });
         taskList.setAdapter(tasksAdapter);
@@ -141,6 +154,11 @@ public class MainActivity extends AppCompatActivity {
 
                         if (queryDocumentSnapshots != null) {
                             List<Task> tasks = queryDocumentSnapshots.toObjects(Task.class);
+                            Collections.sort(tasks, (t1, t2) -> {
+                                int task1Complete = t1.isCompleted() ? 1 : 0;
+                                int task2Complete = t2.isCompleted() ? 1 : 0;
+                                return task1Complete - task2Complete;
+                            });
                             tasksAdapter.submitList(tasks);
                         }
 
@@ -149,6 +167,24 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                 });
+    }
+
+    private void updateTaskCompletionState(Task task) {
+        taskCollection.document(task.getId())
+                .update("completed", !task.isCompleted())
+                .addOnSuccessListener(this, new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.i(TAG, "onSuccess: task completion status changed");
+                    }
+                })
+                .addOnFailureListener(this, new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.i(TAG, "onFailure: Failed to change task status");
+                    }
+                });
+
     }
 
     @Override

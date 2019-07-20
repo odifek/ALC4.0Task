@@ -1,10 +1,14 @@
 package com.techbeloved.alc40task;
 
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
 import android.text.TextUtils;
+import android.text.style.StrikethroughSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -23,7 +27,8 @@ public class TasksAdapter extends ListAdapter<Task, TasksAdapter.ViewHolder> {
         @Override
         public boolean areContentsTheSame(@NonNull Task oldItem, @NonNull Task newItem) {
             return oldItem.getTitle() != null && oldItem.getTitle().equals(newItem.getTitle())
-                    && oldItem.getDetail() != null && oldItem.getDetail().equals(newItem.getDetail());
+                    && oldItem.getDetail() != null && oldItem.getDetail().equals(newItem.getDetail())
+                    && oldItem.isCompleted() == newItem.isCompleted();
         }
     };
 
@@ -45,14 +50,37 @@ public class TasksAdapter extends ListAdapter<Task, TasksAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
 
+        // We use getItem to obtain the current item in list adapter
         Task task = getItem(position);
-        holder.titleText.setText(task.getTitle());
+
+        // We want to display the title to correspond with the completion status
+        if (task.isCompleted()) {
+            SpannableStringBuilder builder = new SpannableStringBuilder(task.getTitle());
+            builder.setSpan(new StrikethroughSpan(), 0, task.getTitle().length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+            holder.titleText.setText(builder);
+        } else {
+            holder.titleText.setText(task.getTitle());
+        }
+
         if (!TextUtils.isEmpty(task.getDetail())) {
             holder.detailText.setText(task.getDetail());
         } else {
             holder.detailText.setVisibility(View.GONE);
         }
-        holder.completedCheckBox.setChecked(task.isCompleted());
+
+        holder.completedCheckBox.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                clickListener.onCompleteToggle(task);
+            }
+        });
+
+        if (task.isCompleted()) {
+            holder.completedCheckBox.setImageResource(R.drawable.ic_check_black_24dp);
+        } else {
+            holder.completedCheckBox.setImageResource(R.drawable.ic_radio_button_unchecked_black_24dp);
+        }
+
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -66,13 +94,13 @@ public class TasksAdapter extends ListAdapter<Task, TasksAdapter.ViewHolder> {
 
         TextView titleText;
         TextView detailText;
-        CheckBox completedCheckBox;
+        ImageView completedCheckBox;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             titleText = itemView.findViewById(R.id.textview_task_title);
             detailText = itemView.findViewById(R.id.textview_task_detail_summary);
-            completedCheckBox = itemView.findViewById(R.id.checkbox_task_done);
+            completedCheckBox = itemView.findViewById(R.id.imageview_task_done);
         }
     }
 }

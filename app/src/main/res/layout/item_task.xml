@@ -10,12 +10,13 @@
     android:layout_marginEnd="16dp"
     android:layout_marginBottom="8dp">
 
-    <CheckBox
-        android:id="@+id/checkbox_task_done"
+    <ImageView
+        android:id="@+id/imageview_task_done"
         android:layout_width="32dp"
         android:layout_height="32dp"
         android:layout_gravity="center_vertical"
         android:layout_marginTop="16dp"
+        tools:src="@drawable/ic_radio_button_unchecked_black_24dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -29,7 +30,7 @@
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/checkbox_task_done"
+        app:layout_constraintStart_toEndOf="@+id/imageview_task_done"
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
