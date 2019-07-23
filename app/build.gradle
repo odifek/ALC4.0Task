@@ -1,5 +1,4 @@
 apply plugin: 'com.android.application'
-apply plugin: 'com.google.gms.google-services'
 
 android {
     compileSdkVersion 28
@@ -40,10 +39,9 @@ dependencies {
     testImplementation "androidx.arch.core:core-testing:2.0.1"
 
     // Firebase
-    implementation 'com.google.firebase:firebase-core:17.0.1'
-    implementation 'com.google.firebase:firebase-auth:18.1.0'
     implementation 'com.google.firebase:firebase-firestore:20.1.0'
     // Provides a predefined ui for sign in options
-    implementation 'com.firebaseui:firebase-ui-auth:4.3.1'
-    implementation 'com.google.android.gms:play-services-auth:17.0.0'
+    implementation 'com.firebaseui:firebase-ui-auth:5.0.0'
 }
+
+apply plugin: 'com.google.gms.google-services'
