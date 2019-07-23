@@ -44,3 +44,5 @@ Go to Authentication in the firebase console, in Sign in methods, enable email/p
 
 After this build and run the app. Cheers!
 
+You can install my own release build by downloading [here](app/release/app-release.apk)
+
